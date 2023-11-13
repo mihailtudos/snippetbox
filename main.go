@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 func home(w http.ResponseWriter, r *http.Request) {
@@ -16,18 +17,31 @@ func home(w http.ResponseWriter, r *http.Request) {
 }
 
 func snippetView(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "View snippet page")
+	id, err := strconv.Atoi(r.URL.Query().Get("id"))
+
+	if err != nil {
+		http.NotFound(w, r)
+		return
+	}
+
+	fmt.Fprintf(w, "View snippet page %d", id)
 }
 
 func snippetCreate(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Create snippet page")
+	if r.Method != http.MethodPost {
+		w.Header().Set("Allow", http.MethodPost)
+		http.Error(w, "Cannot handle your request", http.StatusMethodNotAllowed)
+		return
+	}
+
+	w.Write([]byte("creating new snippet"))
 }
 
 func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/", home)
-	mux.HandleFunc("/snippet/view", snippetView)
-	mux.HandleFunc("/snippet/create", snippetCreate)
+	mux.HandleFunc("/snippets/view", snippetView)
+	mux.HandleFunc("/snippets/create", snippetCreate)
 
 	log.Fatal(http.ListenAndServe(":8080", mux))
 }
