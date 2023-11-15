@@ -40,5 +40,13 @@ Disable static file by creating index.html files in each static subdirectory:
     find ./ui/static -type d -exec touch {}/index.html \;
 ```
 
+## Logging - structured logger
+
+To decouple the logging from the application a basic structured, concurrency-safe, logger was created with the default slog package (set to: os.Stdout). The final destination of the logs can be managed by your execution environment independently of the application: 
+
+```sh 
+    go run ./cmd/web >> /tmp/web.log
+```
+
 A better but more complex approach is to create a custom implementation of
 http.FileSystem, and have it return an os.ErrNotExist. 

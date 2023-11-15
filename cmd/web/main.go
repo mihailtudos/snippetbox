@@ -2,9 +2,9 @@ package main
 
 import (
 	"flag"
-	"fmt"
-	"log"
+	"log/slog"
 	"net/http"
+	"os"
 )
 
 func main() {
@@ -13,7 +13,10 @@ func main() {
 	addr := flag.String("addr", ":8080", "HTTP network address")
 	flag.Parse()
 
-	fmt.Println(*addr)
+	// Use the slog.New() function to initialize a new structured logger, which
+	// writes to the standard out stream and uses the default settings.
+	logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{AddSource: true}))
+
 	mux := http.NewServeMux()
 	fileServer := http.FileServer(http.Dir("./ui/static/"))
 
@@ -22,7 +25,9 @@ func main() {
 	mux.HandleFunc("/snippets/create", snippetCreate)
 	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
 
-	log.Printf("starting server on %s", *addr)
+	logger.Info("starting server", slog.String("addr", ":4000"))
 
-	log.Fatal(http.ListenAndServe(*addr, mux))
+	err := http.ListenAndServe(*addr, mux)
+	logger.Error(err.Error())
+	os.Exit(1)
 }
