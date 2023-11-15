@@ -21,21 +21,14 @@ func main() {
 	// Use the slog.New() function to initialize a new structured logger, which
 	// writes to the standard out stream and uses the default settings.
 	logger := slog.New(slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{AddSource: true}))
+
 	app := &application{
 		logger: logger,
 	}
 
-	mux := http.NewServeMux()
-	fileServer := http.FileServer(http.Dir("./ui/static/"))
+	logger.Info("starting server", slog.String("addr", *addr))
 
-	mux.HandleFunc("/", app.home)
-	mux.HandleFunc("/snippets/view", app.snippetView)
-	mux.HandleFunc("/snippets/create", app.snippetCreate)
-	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
-
-	logger.Info("starting server", slog.String("addr", ":4000"))
-
-	err := http.ListenAndServe(*addr, mux)
+	err := http.ListenAndServe(*addr, app.routes())
 	logger.Error(err.Error())
 	os.Exit(1)
 }
