@@ -48,5 +48,11 @@ To decouple the logging from the application a basic structured, concurrency-saf
     go run ./cmd/web >> /tmp/web.log
 ```
 
+## DI 
+
+This web application, as most web applications, has multiple dependencies that the handlers need to access, such as a database connection pool, centralized error handlers, and template caches. Thus, to make these dependencies available, following the good practices they will be inject. 
+
+DI is build around the application struct and works well with the handlers as long as they are in the same package **main**, for a more complex project structure [Closures for dependency injection](https://gist.github.com/alexedwards/5cd712192b4831058b21) can be used. 
+
 A better but more complex approach is to create a custom implementation of
 http.FileSystem, and have it return an os.ErrNotExist. 
