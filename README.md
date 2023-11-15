@@ -1,5 +1,23 @@
 # Snippetbox
+
+
+## Description
 My first go web app project
+
+## Running the application
+
+### Locally
+To start the application locally run: 
+
+```sh
+    go run ./cmd/web
+```
+
+The above command would start the web application at a default port with the default config, if you want to give you own config run the app with the flag -help to see the available config:
+
+```sh 
+    go run ./cmd/web/ -help
+```
 
 To serve static file the http.FileServe handler was used. It has multiple advantages:
 
