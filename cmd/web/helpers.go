@@ -3,6 +3,7 @@ package main
 import (
 	"log/slog"
 	"net/http"
+	"runtime/debug"
 )
 
 // serverError helper writes a Error log then sends a generic 500 response
@@ -10,10 +11,11 @@ func (app *application) serverError(w http.ResponseWriter, r *http.Request, err 
 	var (
 		method = r.Method
 		uri    = r.URL.RequestURI()
+		trace  = string(debug.Stack())
 	)
 
 	// creates an error level log entry with the method nad uri
-	app.logger.Error(err.Error(), slog.String("method", method), slog.String("uri", uri))
+	app.logger.Error(err.Error(), slog.String("method", method), slog.String("uri", uri), slog.String("trace", trace))
 	// sends an HTTP error to the user
 	http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 }
