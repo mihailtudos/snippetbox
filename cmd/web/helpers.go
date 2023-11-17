@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log/slog"
 	"net/http"
 	"runtime/debug"
@@ -28,4 +29,25 @@ func (app *application) clientError(w http.ResponseWriter, status int) {
 // notFound helper is a convenience wrapper around clientError which sends a 404
 func (app *application) notFound(w http.ResponseWriter) {
 	app.clientError(w, http.StatusNotFound)
+}
+
+// render helper renders the templates from the cache
+func (app *application) render(w http.ResponseWriter, r *http.Request, status int, page string, data templateData) {
+
+	// Retrieve the appropriate template set from the cache
+	ts, ok := app.templateCache[page]
+	if !ok {
+		err := fmt.Errorf("the template %s does not exist", page)
+		app.serverError(w, r, err)
+		return
+	}
+
+	// Write out the provided HTTP status code
+	w.WriteHeader(status)
+
+	// Execute the template set and write the response body
+	err := ts.ExecuteTemplate(w, "base", data)
+	if err != nil {
+		app.serverError(w, r, err)
+	}
 }
