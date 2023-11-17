@@ -134,3 +134,9 @@ If someone is to download the packages for this project by running **go mod down
 ```
 
 The above command will verify that the checksums of the downloaded packages on your machine match the entries in **go.sum**, so you can be confident that they haven’t been altered.
+
+## Rendering data 
+
+The default **html/template** Go library was used as a tempting engine. The default library automatically escapes any data yielded between {{ }}, it is also smart enough to make escaping context-dependent.
+
+It will use the appropriate escape sequences depending on whether the data is rendered in a part of the page that contains HTML, CSS, Javascript or a URI.
