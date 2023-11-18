@@ -6,6 +6,7 @@ import (
 	"log/slog"
 	"net/http"
 	"runtime/debug"
+	"time"
 )
 
 // serverError helper writes a Error log then sends a generic 500 response
@@ -18,6 +19,7 @@ func (app *application) serverError(w http.ResponseWriter, r *http.Request, err 
 
 	// creates an error level log entry with the method nad uri
 	app.logger.Error(err.Error(), slog.String("method", method), slog.String("uri", uri), slog.String("trace", trace))
+	
 	// sends an HTTP error to the user
 	http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 }
@@ -67,5 +69,11 @@ func (app *application) render(w http.ResponseWriter, r *http.Request, status in
 	buf.WriteTo(w)
 	if err != nil {
 		app.serverError(w, r, err)
+	}
+}
+
+func (app *application) newTemplateData(r *http.Request) templateData {
+	return templateData{
+		CurrentYear: time.Now().Year(),
 	}
 }
