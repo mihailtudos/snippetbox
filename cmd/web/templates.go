@@ -3,6 +3,7 @@ package main
 import (
 	"html/template"
 	"path/filepath"
+	"time"
 
 	"github.com/mihailtudos/snippetbox/internals/models"
 )
@@ -29,7 +30,8 @@ func newTemplateCache() (map[string]*template.Template, error) {
 		name := filepath.Base(page)
 
 		// Parse the base template file into a template set.
-		ts, err := template.ParseFiles("./ui/html/base.gohtml")
+		// Register the emplate.FuncMap to the templates
+		ts, err := template.New(name).Funcs(functions).ParseFiles("./ui/html/base.gohtml")
 		if err != nil {
 			return nil, err
 		}
@@ -51,4 +53,14 @@ func newTemplateCache() (map[string]*template.Template, error) {
 	}
 
 	return cache, nil
+}
+
+// humanDate returns a formatted string representation of time.Time
+func humanDate(t time.Time) string {
+	return t.Format("02 Jan 2006 at 15:04")
+}
+
+// store template.FuncMap in a new object
+var functions = template.FuncMap{
+	"humanDate": humanDate,
 }
