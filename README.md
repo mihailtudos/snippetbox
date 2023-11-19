@@ -196,3 +196,6 @@ Thus, for the sake of performance and correctness, for this project ***juliensch
      go get github.com/julienschmidt/httprouter@v1
 ```
 
+## Form processing 
+
+Input validation is inspired by this [gist](https://www.alexedwards.net/blog/validation-snippets-for-go).
