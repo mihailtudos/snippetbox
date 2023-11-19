@@ -155,4 +155,5 @@ This project includes the following middleware:
 
     Before the ServeMux:
     1. secureHeaders - adds CSP headers
-    2. 
+    2. logRequest - logs the details of each incoming request
+    3. recoverPanic - takes control of a panic and handlers it gracefully for the user
