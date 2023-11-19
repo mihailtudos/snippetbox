@@ -146,4 +146,13 @@ It will use the appropriate escape sequences depending on whether the data is re
 
 Middlewares are useful when you want to share some functionality across multiple HTTP requests e.g. you might want to log every request, compress every response, or check a cache before passing the request to your handlers.
 
-A middleware essentially is a self-contained code which independently acts on a request before or after your normal application handlers
+A middleware essentially is a self-contained code which independently acts on a request before or after your normal application handlers.
+
+Think of a Go web application as a chain of **ServeHTTP()** methods being called
+one after another e.g. HTTPRequest -> ServerMux's ServerHTTP() -> relevant handler's ServeHTTP(). The basic idea of middleware is to insert another handler into this chain think **http.StripPrefix()** function from serving static files which removes a specific prefix from the request’s URL path before passing the request on to the file server. 
+
+This project includes the following middleware: 
+
+    Before the ServeMux:
+    1. secureHeaders - adds CSP headers
+    2. 
