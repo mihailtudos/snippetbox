@@ -157,3 +157,42 @@ This project includes the following middleware:
     1. secureHeaders - adds CSP headers
     2. logRequest - logs the details of each incoming request
     3. recoverPanic - takes control of a panic and handlers it gracefully for the user
+
+Go ServeHttp handles well panics and doesn't bring down the web application, we also handle it with receiverPanic middleware but you would have to handle independently each goroutine you spin up e.g.
+
+```go
+    func (app *application) myHandler(w http.ResponseWriter, r *http.Request) {
+    
+        // Spin up a new goroutine to do some background processing.
+        go func() {
+            defer func() {
+                if err := recover(); err != nil {
+                    app.logger.Error(fmt.Sprint(err))
+                }
+            }()
+
+            doSomeBackgroundProcessing()
+        }()
+
+        w.Write([]byte("OK"))
+    }
+```
+
+## Routing 
+
+Go’s servemux doesn’t support method based routing or clean URLs with variables in them which is why it's more appropriate to chose a third-party package than to build a custom solution. 
+
+The most [popular and well supported routers](https://www.alexedwards.net/blog/which-go-router-should-i-use) are: 
+1. **julienschmidt/httprouter** - the most focused, lightweight and fastest of the three packages. It automatically handles OPTIONS requests and sends 405 responses correctly, and allows you to set custom handlers for 404 and 405 responses too.
+
+2. **go-chi/chi** - similar to httprouter in terms of its features, with the main differences being that it also supports regexp route patterns and ‘grouping’ of routes which use specific middleware. The only real
+downside of chi is that it doesn’t automatically handle OPTIONS requests for you.
+
+3. **gorilla/mux** - is the most full-featured router it supports regexp route patterns, and allows you to route requests based on scheme, host and headers. It’s also the only one to support custom routing rules and route ‘reversing’. The downsides of ***gorilla/mux*** is that it’s comparatively slow and memory hungry and like ***chi***, it also doesn’t automatically handle OPTIONS requests, plus it doesn’t set an Allow header in 405 responses
+
+Thus, for the sake of performance and correctness, for this project ***julienschmidt/httprouter*** was used. 
+
+```sh
+     go get github.com/julienschmidt/httprouter@v1
+```
+

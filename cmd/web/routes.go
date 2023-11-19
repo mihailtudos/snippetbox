@@ -1,16 +1,25 @@
 package main
 
-import "net/http"
+import (
+	"net/http"
+
+	"github.com/julienschmidt/httprouter"
+	"github.com/justinas/alice"
+)
 
 func (app *application) routes() http.Handler {
-	mux := http.NewServeMux()
-	fileServer := http.FileServer(http.Dir("./ui/static/"))
+	router := httprouter.New()
 
-	mux.HandleFunc("/", app.home)
-	mux.HandleFunc("/snippets/view", app.snippetView)
-	mux.HandleFunc("/snippets/create", app.snippetCreate)
-	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
+	fileServer := http.FileServer(http.Dir("./ui/static/"))
+	router.Handler(http.MethodGet, "/static/*filepath", http.StripPrefix("/static", fileServer))
+
+	router.HandlerFunc(http.MethodGet, "/", app.home)
+	router.HandlerFunc(http.MethodGet, "/snippets/view/:id", app.snippetView)
+	router.HandlerFunc(http.MethodGet, "/snippets/create", app.snippetCreate)
+	router.HandlerFunc(http.MethodPost, "/snippets/create", app.snippetCreatePost)
 
 	// execute the middleware first before the request reaches the routes
-	return app.recoverPanic(app.logRequest(secureHeaders(mux)))
+	standard := alice.New(app.recoverPanic, app.logRequest, secureHeaders)
+
+	return standard.Then(router)
 }
