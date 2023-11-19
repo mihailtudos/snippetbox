@@ -183,7 +183,7 @@ Go ServeHttp handles well panics and doesn't bring down the web application, we 
 Go’s servemux doesn’t support method based routing or clean URLs with variables in them which is why it's more appropriate to chose a third-party package than to build a custom solution. 
 
 The most [popular and well supported routers](https://www.alexedwards.net/blog/which-go-router-should-i-use) are: 
-1. **julienschmidt/httprouter** - the most focused, lightweight and fastest of the three packages. It automatically handles OPTIONS requests and sends 405 responses correctly, and allows you to set custom handlers for 404 and 405 responses too.
+1. [**julienschmidt/httprouter**](https://pkg.go.dev/github.com/julienschmidt/httprouter#Router) - the most focused, lightweight and fastest of the three packages. It automatically handles OPTIONS requests and sends 405 responses correctly, and allows you to set custom handlers for 404 and 405 responses too.
 
 2. **go-chi/chi** - similar to httprouter in terms of its features, with the main differences being that it also supports regexp route patterns and ‘grouping’ of routes which use specific middleware. The only real
 downside of chi is that it doesn’t automatically handle OPTIONS requests for you.
