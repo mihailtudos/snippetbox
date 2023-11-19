@@ -11,5 +11,6 @@ func (app *application) routes() http.Handler {
 	mux.HandleFunc("/snippets/create", app.snippetCreate)
 	mux.Handle("/static/", http.StripPrefix("/static", fileServer))
 
-	return secureHeaders(mux)
+	// execute the middleware first before the request reaches the routes
+	return app.logRequest(secureHeaders(mux))
 }
