@@ -208,3 +208,45 @@ To automatically decode the form data into the createSnippetForm struct the belo
     go get github.com/go-playground/form/v4@v4
 ```
 
+## Session manager
+
+There are a lot of security considerations when it comes to working with sessions, and
+proper implementation is not trivial. For this reason the this project looks at two session manager projects: 
+
+1. ***gorilla/sessions*** - is the most established and well-known session management
+package for Go. It has a simple and easy-to-use API, and let’s you store session data
+client-side (in signed and encrypted cookies) or server-side (in a database like MySQL,
+PostgreSQL or Redis). 
+
+However, it doesn’t provide a mechanism to renew session IDs which is
+necessary to reduce risks associated with [session fixation attacks](https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html#renew-the-session-id-after-any-privilege-level-change).
+
+2. [***alexedwards/scs***](https://github.com/alexedwards/scs) lets you store session data server-side only. It supports automatic
+loading and saving of session data via middleware, has a nice interface for type-safe
+manipulation of data, and does allow renewal of session IDs. Like gorilla/sessions , it
+also supports a variety of databases (including MySQL, PostgreSQL and Redis).
+
+For this project we’ve already got a MySQL database set up, so we’ll opt to use
+alexedwards/scs and store the session data server-side in MySQL.
+
+```sh
+    go get github.com/alexedwards/scs/v2@v2
+    go get github.com/alexedwards/scs/mysqlstore@latest
+```
+
+### Setting up the session manager 
+
+To setup the session manager create a session table in the DB that would store the sessions:
+
+```sql 
+    USE snippetbox;
+    CREATE TABLE sessions (
+        token CHAR(43) PRIMARY KEY,
+        data BLOB NOT NULL,
+        expiry TIMESTAMP(6) NOT NULL
+    );
+
+    CREATE INDEX sessions_expiry_idx ON sessions (expiry);
+```
+
+Then a new session manager was configured to use the MYSQL DB as the session store in the main.go and maid available to the rest of the application via DI. 

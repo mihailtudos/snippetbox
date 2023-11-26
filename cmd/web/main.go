@@ -7,7 +7,10 @@ import (
 	"log/slog"
 	"net/http"
 	"os"
+	"time"
 
+	"github.com/alexedwards/scs/mysqlstore"
+	"github.com/alexedwards/scs/v2"
 	"github.com/go-playground/form/v4"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/mihailtudos/snippetbox/internal/models"
@@ -21,10 +24,11 @@ var (
 
 // application struct is used to hold the application-wide dependencies
 type application struct {
-	logger        *slog.Logger
-	snippets      *models.SnippetModel
-	templateCache map[string]*template.Template
-	formDecoder   *form.Decoder
+	logger         *slog.Logger
+	snippets       *models.SnippetModel
+	templateCache  map[string]*template.Template
+	formDecoder    *form.Decoder
+	sessionManager *scs.SessionManager
 }
 
 func init() {
@@ -66,11 +70,18 @@ func main() {
 
 	formDecoder := form.NewDecoder()
 
+	// creates a new session manager and configures it to
+	// use the MySQL DB as the session store with lifetime set to 12h
+	sessionManager := scs.New()
+	sessionManager.Store = mysqlstore.New(db)
+	sessionManager.Lifetime = 12 * time.Hour
+
 	app := &application{
-		logger:        logger,
-		snippets:      &models.SnippetModel{DB: db},
-		templateCache: templates,
-		formDecoder:   formDecoder,
+		logger:         logger,
+		snippets:       &models.SnippetModel{DB: db},
+		templateCache:  templates,
+		formDecoder:    formDecoder,
+		sessionManager: sessionManager,
 	}
 
 	logger.Info("starting server", slog.String("addr", addr))

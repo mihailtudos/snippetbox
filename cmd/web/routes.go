@@ -19,10 +19,13 @@ func (app *application) routes() http.Handler {
 	fileServer := http.FileServer(http.Dir("./ui/static/"))
 	router.Handler(http.MethodGet, "/static/*filepath", http.StripPrefix("/static", fileServer))
 
-	router.HandlerFunc(http.MethodGet, "/", app.home)
-	router.HandlerFunc(http.MethodGet, "/snippets/view/:id", app.snippetView)
-	router.HandlerFunc(http.MethodGet, "/snippets/create", app.snippetCreate)
-	router.HandlerFunc(http.MethodPost, "/snippets/create", app.snippetCreatePost)
+	// middleware specific to our dynamic application routes
+	dynamic := alice.New(app.sessionManager.LoadAndSave)
+
+	router.Handler(http.MethodGet, "/", dynamic.ThenFunc(app.home))
+	router.Handler(http.MethodGet, "/snippets/view/:id", dynamic.ThenFunc(app.snippetView))
+	router.Handler(http.MethodGet, "/snippets/create", dynamic.ThenFunc(app.snippetCreate))
+	router.Handler(http.MethodPost, "/snippets/create", dynamic.ThenFunc(app.snippetCreatePost))
 
 	// execute the middleware first before the request reaches the routes
 	standard := alice.New(app.recoverPanic, app.logRequest, secureHeaders)
