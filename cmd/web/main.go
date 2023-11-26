@@ -9,7 +9,7 @@ import (
 	"os"
 
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/mihailtudos/snippetbox/internals/models"
+	"github.com/mihailtudos/snippetbox/internal/models"
 )
 
 var (
