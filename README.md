@@ -199,3 +199,12 @@ Thus, for the sake of performance and correctness, for this project ***juliensch
 ## Form processing 
 
 Input validation is inspired by this [gist](https://www.alexedwards.net/blog/validation-snippets-for-go).
+
+A validator module was created in ***/internal/validator/validator.go*** to help with form validation.
+
+To automatically decode the form data into the createSnippetForm struct the below package was used:
+
+```sh
+    go get github.com/go-playground/form/v4@v4
+```
+
